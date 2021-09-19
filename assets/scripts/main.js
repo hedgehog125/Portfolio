@@ -1,4 +1,5 @@
-game = Bagel.init({
+// TODO: scrolling
+const game = Bagel.init({
     id: "menu",
     state: "menu",
     game: {
