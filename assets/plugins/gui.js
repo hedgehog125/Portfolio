@@ -81,10 +81,26 @@
                                     },
                                     description: "Scrolling options for this submenu."
                                 },
+
                                 init: {
                                     required: false,
                                     types: ["function"],
                                     description: "A function that runs when this submenu is switched to, after the animation has completed. It's called with the menuSprite and game objects."
+                                },
+                                main: {
+                                    required: false,
+                                    types: ["function"],
+                                    description: "A function that runs when this submenu is active, after the animation has completed. Called with the menuSprite and game objects."
+                                },
+                                animationInit: {
+                                    required: false,
+                                    types: ["function"],
+                                    description: "A function that runs as soon as this submenu is switched to, when the animation first starts. Called with the menuSprite, animationVars, submenuChangeAnimation and game."
+                                },
+                                animationMain: {
+                                    required: false,
+                                    types: ["function"],
+                                    description: "A function that runs as soon as this submenu is active, when the animation is active. It's called with the menuSprite, animationVars, submenuChangeAnimation and game."
                                 }
                             },
                             types: ["object"],
@@ -216,10 +232,12 @@
                             code: (me, game) => {
                                 let internal = me.internal;
                                 let plugin = internal.plugin;
+                                let animationJustTriggered = false;
                                 if (internal.queuedSubmenuChangeAnimation) {
                                     me.submenu = internal.queuedSubmenuChangeAnimation[0];
                                     internal.submenuChangeAnimation = internal.queuedSubmenuChangeAnimation[1];
                                     internal.queuedSubmenuChangeAnimation = null;
+                                    animationJustTriggered = true;
                                 }
 
                                 if (me.submenu != me.internal.lastSubmenu) {
@@ -232,6 +250,11 @@
                                     let method = me.internal.plugin.vars.types.animations[animation.type].menuSprite.main;
                                     if (method) {
                                         method(me, animation, internal.animationVars, internal.finishAnimation, game, me.vars.plugin);
+                                    }
+
+                                    let submenuOb = me.submenus[me.submenu];
+                                    if (animationJustTriggered && submenuOb.animationInit) {
+                                        submenuOb.animationInit(me, internal.animationVars, internal.submenuChangeAnimation, game);
                                     }
                                 }
                             },
@@ -282,7 +305,9 @@
                     },
                     tick: menuSprite => {
                         let game = menuSprite.game;
-                        let scrollOptions = menuSprite.submenus[menuSprite.submenu].scroll;
+                        let internal = menuSprite.internal;
+                        let submenuOb = menuSprite.submenus[menuSprite.submenu];
+                        let scrollOptions = submenuOb.scroll;
                         if (scrollOptions.x) {
                             if (Math.sign(game.input.scrollDelta.x) == 1) {
                                 if (menuSprite.camera.x < scrollOptions.x.max) {
@@ -305,6 +330,18 @@
                                 if (menuSprite.camera.y > scrollOptions.y.min) {
                                     menuSprite.camera.y = Math.max(menuSprite.camera.y + game.input.scrollDelta.y, scrollOptions.y.min);
                                 }
+                            }
+                        }
+
+                        Bagel.internal.current.pluginProxy = true;
+                        if (internal.submenuChangeAnimation) {
+                            if (submenuOb.animationMain) {
+                                submenuOb.animationMain(menuSprite, internal.animationVars, internal.submenuChangeAnimation, game);
+                            }
+                        }
+                        else {
+                            if (submenuOb.main) {
+                                submenuOb.main(menuSprite, game);
                             }
                         }
                     },
@@ -1893,8 +1930,6 @@ Clean up textures created once the menuSprite is deleted
 Update Bagel.js to make hidden canvases unload and use a blank texture to start with. Or just reserve it somehow?
 
 Set pluginProxy when making sprites
-
-submenus.<>.animationInit, animationMain and main
 
 = Tweaks =
 Move elements to submenus.<>.elements

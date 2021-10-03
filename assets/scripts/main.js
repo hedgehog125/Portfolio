@@ -1,14 +1,27 @@
 const game = (_ => {
-    const githubHandler = menuSprite => {
-        let projectID = menuSprite.submenu.split(".");
-        projectID.splice(0, 1);
-        projectID.splice(projectID.length - 1, 1);
-        projectID = projectID.join(".");
-        location.href = menuSprite.vars.githubURLs[projectID];
+    const githubHandler = (menuSprite, animationVars) => {
+        if (! game.vars.loadingExternalPage) {
+            if (game.vars.externalPageDelay == 0) {
+                // It'll take a second or two to load anyway so start loading while the animation is active
+                let projectID = menuSprite.submenu.split(".");
+                projectID.splice(0, 1);
+                projectID.splice(projectID.length - 1, 1);
+                projectID = projectID.join(".");
+                location.href = menuSprite.vars.githubURLs[projectID];
+                game.vars.loadingExternalPage = true;
+            }
+            else {
+                game.vars.externalPageDelay--;
+            }
+        }
     };
     return Bagel.init({
         id: "menu",
         state: "menu",
+        vars: {
+            loadingExternalPage: false,
+            externalPageDelay: 30
+        },
         game: {
             plugins: [
                 {
@@ -63,7 +76,7 @@ const game = (_ => {
                             }
                         },
                         "Project.BagelJS.GitHub": {
-                            init: githubHandler
+                            animationMain: githubHandler
                         }
                     },
                     stateToActivate: "menu",
@@ -195,7 +208,7 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning a
                             wordWrapWidth: 750,
                             submenu: "Project.BagelJS"
                         },
-                        
+
                         {
                             type: "image",
                             color: "#202020",
@@ -219,6 +232,13 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning a
                             y: 412.5,
                             fixedToCamera: true,
                             submenu: "Project.BagelJS"
+                        },
+                        {
+                            type: "image",
+                            color: "black",
+                            width: 800,
+                            height: 450,
+                            submenu: "Project.BagelJS.GitHub"
                         },
                     ]
                 }
