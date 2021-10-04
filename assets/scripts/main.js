@@ -40,6 +40,10 @@ const game = (_ => {
                         src: "assets/imgs/github.png",
                         webP: "assets/imgs/github.webp"
                     },
+                    {
+                        id: "Back",
+                        src: "assets/imgs/backArrow.png"
+                    },
 
                     {
                         id: "ProjectIcon.BagelJS",
@@ -234,6 +238,24 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning a
                             submenu: "Project.BagelJS"
                         },
                         {
+                            type: "button",
+                            icon: "Back",
+                            color: "white",
+                            onclick: {
+                                submenu: "main",
+                                animation: {
+                                    type: "circle",
+                                    direction: "close"
+                                }
+                            },
+                            size: 50,
+                            x: 25 + 25,
+                            y: 25 + 25,
+                            fixedToCamera: true,
+                            submenu: "Project.BagelJS"
+                        },
+
+                        {
                             type: "image",
                             color: "black",
                             width: 800,
@@ -249,7 +271,8 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning a
         config: {
             display: {
                 backgroundColor: "#202020",
-                renderer: "canvas"
+                renderer: "canvas",
+                antialiasing: true
             }
         }
     });
