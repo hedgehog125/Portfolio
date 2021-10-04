@@ -1408,6 +1408,10 @@
                                     }
                                 }
                             }
+
+                            if (animation.direction == "close" && animationVars.oldScrolled && (! sprite.vars.old)) {
+                                element.visible = sprite.vars.originalElement.visible;
+                            }
                         }
                     },
                     menuSprite: {
@@ -1415,21 +1419,25 @@
                             let game = menuSprite.game;
                             animation.x -= menuSprite.camera.x;
                             animation.y -= menuSprite.camera.y;
+                            animation.x = Math.max(Math.min(animation.x, game.width), 0);
+                            animation.y = Math.max(Math.min(animation.y, game.height), 0);
                             animationVars.vel = 3 * animation.direction == "open"? -1 : 1;
 
-                            let size = Math.max(game.width, game.height) * 0.8;
+                            let size = animation.direction == "open"? Math.max(game.width, game.height) * 0.8 : 1;
                             return {
                                 type: "canvas",
                                 mode: "static",
-                                x: animation.x,
-                                y: animation.y - (animation.direction == "open"? 0 : game.height),
+                                x: animation.direction == "open"? animation.x : (game.width / 2),
+                                y: animation.direction == "open"? animation.y : -(game.height / 2),
                                 vars: {
                                     vel: 2,
                                     burstTick: 0,
-                                    doneTick: 0
+                                    doneTick: 0,
+                                    renderMode: animation.direction == "open"
                                 },
+                                fullRes: animation.direction == "open",
                                 prerender: (me, game, ctx, canvas) => {
-                                    if (me.vars.doneTick == 0) {
+                                    if (me.vars.renderMode) {
                                         ctx.fillStyle = me.vars.animation.color;
                                         ctx.beginPath();
                                         let half = canvas.width / 2;
@@ -1440,9 +1448,6 @@
                                         if (me.vars.animation.direction == "open") {
                                             me.width = me.vars.animation.initialSize;
                                         }
-                                        else {
-                                            me.width = Math.max(game.width, game.height);
-                                        }
                                         me.height = me.width;
                                     }
                                     else {
@@ -1452,8 +1457,10 @@
                                         me.updateRes = false;
                                         me.width = game.width;
                                         me.height = game.height;
-                                        me.x = game.width / 2;
-                                        me.y = game.height / 2;
+                                        if (me.vars.animation.direction == "open") {
+                                            me.x = game.width / 2;
+                                            me.y = game.height / 2;
+                                        }
                                     }
                                 },
                                 scripts: {
@@ -1461,30 +1468,58 @@
                                         {
                                             code: (me, game) => {
                                                 if (me.vars.doneTick == 0) {
-                                                    me.vars.burstTick++;
-                                                    if (me.vars.burstTick == 15) {
-                                                        me.vars.vel += 50;
+                                                    if (me.vars.animationVars.oldScrolled || me.vars.animation.direction == "open") {
+                                                        if (me.vars.animation.direction == "close") {
+                                                            if (! me.vars.oldScrolledWas) {
+                                                                me.x = me.vars.animation.x;
+                                                                me.y = me.vars.animation.y;
+                                                                let squareWidth = Math.max(Math.max(me.x, game.width - me.x) * 2, Math.max(me.y, game.height - me.y) * 2);
+                                                                me.width = Math.floor(Math.sqrt(Math.pow((squareWidth + 1) * 2, 2) / 2));
+                                                                me.height = me.width;
+                                                                me.vars.renderMode = true;
+                                                                me.updateRes = true;
+                                                                me.fullRes = true;
+                                                                me.vars.oldScrolledWas = true;
+                                                            }
+                                                        }
+
+                                                        me.vars.burstTick++;
+                                                        if (me.vars.burstTick == 15) {
+                                                            me.vars.vel += 50;
+                                                        }
+                                                        else {
+                                                            me.vars.vel++;
+                                                        }
+
+                                                        me.width += me.vars.vel * (me.vars.animation.direction == "open"? 1 : -1);
+                                                        me.height = me.width;
+
+                                                        if (me.vars.animation.direction == "open") {
+                                                            let squareWidth = Math.floor(Math.sqrt(Math.pow(me.width, 2) * 2) / 2);
+                                                            if (
+                                                                me.x - (squareWidth / 2) <= 0
+                                                                && me.x + (squareWidth / 2) >= game.width
+                                                                && me.y - (squareWidth / 2) <= 0
+                                                                && me.y + (squareWidth / 2) >= game.height
+                                                            ) {
+                                                                me.vars.doneTick = 1;
+                                                                me.vars.renderMode = false;
+                                                                me.width = 1;
+                                                                me.height = 1;
+                                                                me.updateRes = true;
+                                                                me.fullRes = false;
+                                                            }
+                                                        }
+                                                        else {
+                                                            me.layer.bringToFront();
+                                                            if (me.width <= 1) {
+                                                                me.delete();
+                                                                me.vars.animationVars.finished = true;
+                                                            }
+                                                        }
                                                     }
                                                     else {
-                                                        me.vars.vel++;
-                                                    }
-
-                                                    me.width += me.vars.vel;
-                                                    me.height = me.width;
-
-                                                    let squareWidth = Math.floor(Math.sqrt(Math.pow(me.width, 2) * 2) / 2);
-
-                                                    if (
-                                                        me.x - (squareWidth / 2) <= 0
-                                                        && me.x + (squareWidth / 2) >= game.width
-                                                        && me.y - (squareWidth / 2) <= 0
-                                                        && me.y + (squareWidth / 2) >= game.height
-                                                    ) {
-                                                        me.vars.doneTick = 1;
-                                                        me.width = 1;
-                                                        me.height = 1;
-                                                        me.updateRes = true;
-                                                        me.fullRes = false;
+                                                        me.y += me.vars.animationVars.vel;
                                                     }
                                                 }
                                                 else {
@@ -1516,7 +1551,14 @@
                                 }
                             }
                             else {
-                                animationVars.vel += game.height / 200;
+                                if (animationVars.oldScrolled) {
+                                    if (animationVars.finished) {
+                                        finish();
+                                    }
+                                }
+                                else {
+                                    animationVars.vel += game.height / 200;
+                                }
                             }
                         }
                     },
@@ -1553,12 +1595,6 @@
                             default: 1,
                             types: ["number"],
                             description: "For the open direction. The diameter of the circle when the animation starts."
-                        },
-                        finalShrinkSize: {
-                            required: false,
-                            default: 1,
-                            types: ["number"],
-                            description: "For the close direction. The diameter the circle will finish on."
                         }
                     },
                     hideNew: true,
@@ -1644,7 +1680,7 @@
                                 ...plugin.vars.checks.animation,
                                 ...animationJSON.args
                             };
-                            let hasDefaults = ["x", "y", "color", "initialSize", "finalShrinkSize", "size"];
+                            let hasDefaults = ["x", "y", "color", "initialSize", "size"];
                             element.internal = {
                                 setDefaults: []
                             };
@@ -1692,7 +1728,6 @@
                                                             x: element.x,
                                                             y: element.y,
                                                             initialSize: element.size,
-                                                            finalShrinkSize: element.size,
                                                             size: element.size,
                                                             color: element.color
                                                         }, me.vars.element.internal.setDefaults);
@@ -1989,6 +2024,8 @@ Tidy up by using sub functions
 Preload based on submenu?
 
 Add in state to run for animation sprites
+
+Save camera positions on submenus (but before the animation)
 
 = Bugs =
 triangleScroll can be too short when vertical

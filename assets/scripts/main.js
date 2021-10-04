@@ -245,7 +245,9 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning a
                                 submenu: "main",
                                 animation: {
                                     type: "circle",
-                                    direction: "close"
+                                    direction: "close",
+                                    x: 400,
+                                    y: 450 + 225
                                 }
                             },
                             size: 50,
