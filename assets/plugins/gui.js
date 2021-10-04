@@ -2038,4 +2038,8 @@ Loading new animations and element types. Don't forget checks
 
 Optimise texture usage by sharing the black circles. Need to prevent deletion when the canvas sprite that created it is deleted. Maybe load texture manually and use normal sprites? Copy canvas mode? How should copy canvas mode handle deleting the original sprite?
 Optimise by sharing textures when the colors are the same
+
+Touch scroll momentum can cause animations to be weird
+
+Should be a minimum amount of movement for touch scrolling
 */
