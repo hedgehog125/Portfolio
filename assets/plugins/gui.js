@@ -39,6 +39,95 @@
                         submenus: {
                             required: true,
                             subcheck: {
+                                elements: {
+                                    required: true,
+                                    types: ["array"],
+                                    check: value => {
+                                        value.internal = {
+                                            dontClone: true
+                                        };
+                                    },
+                                    checkEach: true,
+                                    subcheck: {
+                                        type: {
+                                            required: true,
+                                            types: ["string"],
+                                            description: "The type of element."
+                                        },
+                                        visible: {
+                                            required: false,
+                                            default: true,
+                                            types: ["boolean"],
+                                            description: "If the element is visible or not."
+                                        },
+                                        fixedToCamera: {
+                                            required: false,
+                                            default: false,
+                                            types: ["boolean"],
+                                            description: "If the element should be fixed to the camera or not. This will mean it won't move when the camera moves. It will reattatch temporarily for an animation though."
+                                        },
+
+                                        x: {
+                                            required: false,
+                                            types: [
+                                                "number",
+                                                "string",
+                                                "function"
+                                            ],
+                                            description: "The x position of the element."
+                                        },
+                                        y: {
+                                            required: false,
+                                            types: [
+                                                "number",
+                                                "string",
+                                                "function"
+                                            ],
+                                            description: "The y position of the element."
+                                        },
+                                        left: {
+                                            required: false,
+                                            types: [
+                                                "number",
+                                                "function"
+                                            ],
+                                            description: "The x position of the left side of the element."
+                                        },
+                                        top: {
+                                            required: false,
+                                            types: [
+                                                "number",
+                                                "function"
+                                            ],
+                                            description: "The y position of the top of the element."
+                                        },
+                                        right: {
+                                            required: false,
+                                            types: [
+                                                "number",
+                                                "function"
+                                            ],
+                                            description: "The x position of the right side of the element."
+                                        },
+                                        bottom: {
+                                            required: false,
+                                            types: [
+                                                "number",
+                                                "function"
+                                            ],
+                                            description: "The y position of the bottom of the element."
+                                        },
+
+                                        internal: {
+                                            required: false,
+                                            types: ["object"],
+                                            description: "Stores some internal values."
+                                        }
+                                    },
+                                    ignoreUseless: true,
+                                    arrayLike: true,
+                                    description: "The elements for this submenu."
+                                },
                                 scroll: {
                                     required: false,
                                     default: {},
@@ -107,100 +196,6 @@
                             arrayLike: true,
                             description: "The submenus in this menu. The key is the id and the value is an object."
                         },
-                        elements: {
-                            required: true,
-                            types: ["array"],
-                            check: value => {
-                                value.internal = {
-                                    dontClone: true
-                                };
-                            },
-                            checkEach: true,
-                            subcheck: {
-                                type: {
-                                    required: true,
-                                    types: ["string"],
-                                    description: "The type of element."
-                                },
-                                submenu: {
-                                    required: true,
-                                    types: ["string"],
-                                    description: "The id of the submenu that this element is in."
-                                },
-                                visible: {
-                                    required: false,
-                                    default: true,
-                                    types: ["boolean"],
-                                    description: "If the element is visible or not."
-                                },
-                                fixedToCamera: {
-                                    required: false,
-                                    default: false,
-                                    types: ["boolean"],
-                                    description: "If the element should be fixed to the camera or not. This will mean it won't move when the camera moves. It will reattatch temporarily for an animation though."
-                                },
-
-                                x: {
-                                    required: false,
-                                    types: [
-                                        "number",
-                                        "string",
-                                        "function"
-                                    ],
-                                    description: "The x position of the element."
-                                },
-                                y: {
-                                    required: false,
-                                    types: [
-                                        "number",
-                                        "string",
-                                        "function"
-                                    ],
-                                    description: "The y position of the element."
-                                },
-                                left: {
-                                    required: false,
-                                    types: [
-                                        "number",
-                                        "function"
-                                    ],
-                                    description: "The x position of the left side of the element."
-                                },
-                                top: {
-                                    required: false,
-                                    types: [
-                                        "number",
-                                        "function"
-                                    ],
-                                    description: "The y position of the top of the element."
-                                },
-                                right: {
-                                    required: false,
-                                    types: [
-                                        "number",
-                                        "function"
-                                    ],
-                                    description: "The x position of the right side of the element."
-                                },
-                                bottom: {
-                                    required: false,
-                                    types: [
-                                        "number",
-                                        "function"
-                                    ],
-                                    description: "The y position of the bottom of the element."
-                                },
-
-                                internal: {
-                                    required: false,
-                                    types: ["object"],
-                                    description: "Stores some internal values."
-                                }
-                            },
-                            ignoreUseless: true,
-                            arrayLike: true,
-                            description: "The elements of your menu."
-                        },
 
                         stateToActivate: {
                             required: true,
@@ -210,11 +205,14 @@
                     },
                     cloneArgs: null,
                     check: (menuSprite, game, check, plugin) => {
-                        for (let i in menuSprite.elements) {
-                            let type = menuSprite.elements[i].type;
-                            if (plugin.vars.types.elements[type] == null) {
-                                return "Huh, the type " + JSON.stringify(type) + " doesn't seem to exist. It has to be one of these:\n"
-                                + Object.keys(plugin.vars.types.elements).map(value => " • " + JSON.stringify(value) + " -> " + plugin.vars.types.elements[value].description).join("\n") + "\nCheck you haven't mispelt it and that you added the GUIElement asset.";
+                        for (let c in menuSprite.submenus) {
+                            let elements = menuSprite.submenus[c].elements;
+                            for (let i in elements) {
+                                let type = elements.type;
+                                if (plugin.vars.types.elements[type] == null) {
+                                    return "Huh, the type " + JSON.stringify(type) + " doesn't seem to exist. It has to be one of these:\n"
+                                    + Object.keys(plugin.vars.types.elements).map(value => " • " + JSON.stringify(value) + " -> " + plugin.vars.types.elements[value].description).join("\n") + "\nCheck you haven't mispelt it and that you added the GUIElement asset.";
+                                }
                             }
                         }
 
@@ -261,33 +259,34 @@
                             stateToRun: menuSprite.stateToActivate
                         });
 
-                        for (let i in menuSprite.elements) {
-                            let element = menuSprite.elements[i];
+                        for (let c in menuSprite.submenus) {
+                            let elements = menuSprite.submenus[c].elements;
+                            for (let i in elements) {
+                                let element = elements[i];
 
-                            let type = Bagel.internal.getTypeOf(element);
-                            if (type != "object") {
-                                return "Huh, sprite.elements item " + i + " is " + Bagel.internal.an(type) + "type. It should be an object.";
-                            }
-
-                            let elementJSON = plugin.vars.types.elements[element.type];
-
-                            let where = "Game.game.sprites item " + menuSprite.idIndex + ".elements item " + i;
-                            check({
-                                ob: element,
-                                where: where,
-                                syntax: {
-                                    ...elementJSON.args,
-                                    ...plugin.vars.checks.ignoreElement
+                                let type = Bagel.internal.getTypeOf(element);
+                                if (type != "object") {
+                                    return "Huh, sprite.elements item " + i + " is " + Bagel.internal.an(type) + "type. It should be an object.";
                                 }
-                            });
 
-                            if (menuSprite.submenus[element.submenu] == null) {
-                                return "Hmm, the submenu " + JSON.stringify(element.submenu) + " doesn't seem to exist. You might need to add it in the \"submenus\" argument.";
-                            }
+                                let elementJSON = plugin.vars.types.elements[element.type];
 
-                            if (elementJSON.check) {
-                                let output = elementJSON.check(element, check, where, menuSprite, plugin, game);
-                                if (output) return output;
+                                let where = "Game.game.sprites item " + menuSprite.idIndex + ".elements item " + i;
+                                check({
+                                    ob: element,
+                                    where: where,
+                                    syntax: {
+                                        ...elementJSON.args,
+                                        ...plugin.vars.checks.ignoreElement
+                                    }
+                                });
+
+                                element.submenu = c;
+
+                                if (elementJSON.check) {
+                                    let output = elementJSON.check(element, check, where, menuSprite, plugin, game);
+                                    if (output) return output;
+                                }
                             }
                         }
                     },
@@ -430,18 +429,25 @@
                                 if (! internal.initialized) {
                                     internal.initialSubmenu = menuSprite.submenu;
                                     internal.lastSubmenu = menuSprite.submenu;
-                                    internal.initialElements = Bagel.internal.deepClone(menuSprite.elements);
+
+                                    let initialElements = [];
+                                    for (let i in menuSprite.submenus) {
+                                        initialElements[i] = Bagel.internal.deepClone(menuSprite.submenus[i].elements);
+                                    }
+                                    internal.initialElements = initialElements;
 
                                     plugin.vars.initMenu(menuSprite, plugin, ! internal.previouslyInitialized);
                                     internal.previouslyInitialized = true;
                                 }
                             }
                             else {
-                                menuSprite.elements = internal.initialElements;
+                                for (let i in menuSprite.initialElements) {
+                                    menuSprite.submenus[i].elements = internal.initialElements[i];
+                                }
                                 menuSprite.submenu = internal.initialSubmenu;
                                 internal.initialized = false;
 
-                                for (let i in internal.spriteElements) {
+                                for (i in internal.spriteElements) {
                                     let element = internal.spriteElements[i];
                                     if (element) {
                                         element.delete();
@@ -1977,7 +1983,6 @@
         checks: {
             ignoreElement: {
                 type: "ignore",
-                submenu: "ignore",
                 visible: "ignore",
                 fixedToCamera: "ignore",
 
