@@ -48,7 +48,12 @@ const game = (_ => {
                     {
                         id: "ProjectIcon.BagelJS",
                         src: "assets/imgs/projectIcons/bagelJS.png",
-                        webP: "assets/imgs/projectIcons/bagelJS.webp"
+                        webP: "assets/imgs/projectIcons/bagelJS.webp",
+                        upscale: {
+                            width: 150,
+                            height: 150,
+                            antialias: false
+                        }
                     }
                 ]
             },
