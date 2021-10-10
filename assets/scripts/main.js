@@ -1,8 +1,6 @@
 /*
 TODO
-Improve play icon
-Compress images
-
+More projects
 
 */
 
@@ -208,11 +206,13 @@ Latest Version: ${latestVersion}`,
                     },
                     {
                         id: "Back",
-                        src: "assets/imgs/backArrow.png"
+                        src: "assets/imgs/backArrow.png",
+                        src: "assets/imgs/backArrow.webp"
                     },
                     {
                         id: "Play",
-                        src: "assets/imgs/play.png"
+                        src: "assets/imgs/play.png",
+                        webP: "assets/imgs/play.webp"
                     },
 
                     {
