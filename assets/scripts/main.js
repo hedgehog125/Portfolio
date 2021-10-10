@@ -207,7 +207,7 @@ Latest Version: ${latestVersion}`,
                     {
                         id: "Back",
                         src: "assets/imgs/backArrow.png",
-                        src: "assets/imgs/backArrow.webp"
+                        webP: "assets/imgs/backArrow.webp"
                     },
                     {
                         id: "Play",
