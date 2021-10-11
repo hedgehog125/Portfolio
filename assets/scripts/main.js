@@ -1,6 +1,8 @@
 /*
 TODO
 More projects
+Images? In a separate submenu?
+Links
 
 */
 
@@ -108,14 +110,14 @@ Latest Version: ${latestVersion}`,
         size: 15,
         wordWrapWidth: 250
     });
-    const sideText = (text, yOffset = 0) => ({
+    const sideText = (text, xOffset = 0, yOffset = 0) => ({
         type: "text",
         color: "#EFEFEF",
-        left: 301,
+        left: 301 + xOffset,
         top: 75 + yOffset,
         text: text,
         size: 20,
-        wordWrapWidth: 474
+        wordWrapWidth: 474 - xOffset
     });
     const paragraph = (text, y) => ({
         type: "text",
@@ -228,11 +230,17 @@ Latest Version: ${latestVersion}`,
                     {
                         id: "ProjectIcon.Frontier",
                         src: "assets/imgs/projectIcons/frontier.png",
+                        webP: "assets/imgs/projectIcons/frontier.webp",
                         upscale: {
                             width: 150,
                             height: 150,
                             antialias: false
                         }
+                    },
+                    {
+                        id: "ProjectIcon.Rummikub",
+                        src: "assets/imgs/projectIcons/rummikub.png",
+                        src: "assets/imgs/projectIcons/rummikub.webp"
                     }
                 ]
             },
@@ -243,10 +251,12 @@ Latest Version: ${latestVersion}`,
                     vars: {
                         githubURLs: {
                             BagelJS: "https://github.com/hedgehog125/Bagel.js",
-                            Frontier: "https://github.com/hedgehog125/Frontier-Fan-Made-Game"
+                            Frontier: "https://github.com/hedgehog125/Frontier-Fan-Made-Game",
+                            Rummikub: "https://github.com/hedgehog125/Rummikub-clone"
                         },
                         pagesURLs: {
-                            Frontier: "https://hedgehog125.github.io/Frontier-Fan-Made-Game/"
+                            Frontier: "https://hedgehog125.github.io/Frontier-Fan-Made-Game/",
+                            Rummikub: "https://hedgehog125.github.io/Rummikub-clone"
                         }
                     },
                     submenu: "main",
@@ -298,8 +308,9 @@ Anyway, scroll down for my semi recent projects...`,
                                     height: 3
                                 },
 
-                                projectButton("BagelJS", "yellow", 300, 450 + 225, "Bagel.js"),
-                                projectButton("Frontier", "black", 500, 450 + 225, "Frontier")
+                                projectButton("BagelJS", "yellow", 200, 450 + 225, "Bagel.js"),
+                                projectButton("Frontier", "black", 400, 450 + 225, "Frontier"),
+                                projectButton("Rummikub", "white", 600, 450 + 225, "Rummikub")
                             ],
                             scroll: {
                                 y: {
@@ -329,7 +340,7 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                                 507),
 
                                 ...projectBar("BagelJS"),
-                                backButton(300, 450 + 225, "yellow")
+                                backButton(200, 450 + 225, "yellow")
                             ],
                             scroll: {
                                 y: {
@@ -350,7 +361,7 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                                     "Discontinued/semi finished",
                                     "v1.1"
                                 ),
-                                sideText(`Frontier is a HTML5 space shooter game inspired by the Scratch game: Frontier 2. It was made using JAMESCRIPT.`, -5),
+                                sideText(`Frontier is a HTML5 space shooter game inspired by the Scratch game: Frontier 2. It was made using JAMESCRIPT.`, -22, -5),
                                 paragraph(
 `Overall, I'm proud of this game. The resulting game is fun (if simplistic) and it also shows a bit how my code has improved. Both how it got better since then and how it improved between Rummikub and it.`,
                                 171),
@@ -359,13 +370,47 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                                 272),
 
                                 ...projectBar("Frontier", true),
-                                backButton(500, 450 + 225, "black")
+                                backButton(400, 450 + 225, "black")
                             ],
                             scroll: {},
                             ...hoverText(true)
                         },
                         ...transitionSubmenu("Frontier", "GitHub"),
-                        ...transitionSubmenu("Frontier", "Pages")
+                        ...transitionSubmenu("Frontier", "Pages"),
+
+                        "Project.Rummikub": {
+                            elements: [
+                                background(),
+                                title("Rummikub"),
+                                basicInfo(
+                                    "27/3/17",
+                                    "Finished",
+                                    "1.0"
+                                ),
+                                sideText(`This project is a clone of the Romanian board game with the same name. It's very popular in the Netherlands so I guess part of my Dutch heritance is to play it sometimes (and also make it in my case I guess :P).`, -102, -5),
+                                paragraph(
+`My recreation is pretty accurate except it uses the joker rules we use in my immediate family. There's also no AI but the physical board game doesn't so...`,
+                                196),
+                                paragraph(
+`The game technically uses my very fist games framework: GameLib. However, other than using some of the methods in it, it mustly just renders straight to the 2D canvas.`,
+                                272),
+                                paragraph(
+`Overall, the code is pretty bad. But it was my first big JavaScript project so I can't bash it too much. It also used my first games framework which doesn't help.`,
+                                348),
+
+                                ...projectBar("Rummikub", true),
+                                backButton(600, 450 + 225, "white")
+                            ],
+                            scroll: {
+                                y: {
+                                    min: 0,
+                                    max: 50
+                                }
+                            },
+                            ...hoverText(true)
+                        },
+                        ...transitionSubmenu("Rummikub", "GitHub"),
+                        ...transitionSubmenu("Rummikub", "Pages"),
                     },
                     stateToActivate: "menu"
                 }
