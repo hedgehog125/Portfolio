@@ -8,7 +8,36 @@ Links
 
 const game = (_ => {
     const externalHandler = (menuSprite, animationVars) => {
-        if (! game.vars.loadingExternalPage) {
+        if (game.vars.loadingExternalPage) {
+            if (game.vars.externalPageLoaded) {
+                let menuSprite = game.get.sprite("Menu");
+                if (new Date() - game.vars.backforwardRecoverTick > 1000 && (! menuSprite.animationActive)) {
+                    // Back/forward cache has put the page in a weird state
+                    if (! game.vars.backforwardRecovering) {
+                        game.vars.backforwardRecovering = true;
+                        window.onbeforeunload = null;
+
+                        game.game.sprites.find(sprite => sprite && sprite.type == "sprite").delete();
+                        setTimeout(_ => {
+                            let vars = game.vars;
+                            vars.externalPageLoaded = false;
+                            vars.loadingExternalPage = false;
+                            vars.externalPageDelay = 30;
+                            vars.backforwardRecovering = false;
+                        }, 1000);
+
+                        let submenu = menuSprite.submenu.split(".");
+                        submenu.splice(submenu.length - 1, 1);
+                        submenu = submenu.join(".");
+                        menuSprite.animateSubmenuChange(submenu, {
+                            type: "triangleScroll",
+                            direction: "left"
+                        });
+                    }
+                }
+            }
+        }
+        else {
             if (game.vars.externalPageDelay == 0) {
                 // It'll take a second or two to load anyway so start loading while the animation is active
                 let projectID = menuSprite.submenu.split(".");
@@ -27,6 +56,11 @@ const game = (_ => {
             else {
                 game.vars.externalPageDelay--;
             }
+
+            window.onbeforeunload = _ => {
+                game.vars.backforwardRecoverTick = new Date();
+                game.vars.externalPageLoaded = true;
+            };
         }
     };
     const transitionSubmenu = (name, type) => {
@@ -41,7 +75,8 @@ const game = (_ => {
                     height: 450
                 }
             ],
-            animationMain: externalHandler
+            animationMain: externalHandler,
+            main: externalHandler
         };
         return ob;
     };
@@ -187,7 +222,9 @@ Latest Version: ${latestVersion}`,
         state: "menu",
         vars: {
             loadingExternalPage: false,
-            externalPageDelay: 30
+            externalPageDelay: 30,
+            backforwardRecoverTick: null,
+            backforwardRecovering: false
         },
         game: {
             plugins: [
