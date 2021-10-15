@@ -119,14 +119,14 @@ Latest Version: ${latestVersion}`,
         size: 20,
         wordWrapWidth: 474 - xOffset
     });
-    const paragraph = (text, y) => ({
+    const paragraph = (text, y, xOffset = 0) => ({
         type: "text",
         color: "#EFEFEF",
-        left: 25,
+        left: 25 + xOffset,
         top: y,
         text: text,
         size: 20,
-        wordWrapWidth: 750
+        wordWrapWidth: 750 - xOffset
     });
 
     const background = _ => ({
@@ -163,11 +163,12 @@ Latest Version: ${latestVersion}`,
             fixedToCamera: true
         };
     };
-    const projectButton = (name, color, x, y, hover) => {
+    const projectButton = (name, color, x, y, hover, iconSize = 0.85) => {
         return {
             type: "button",
             color: color,
             icon: "ProjectIcon." + name,
+            iconSize: iconSize,
             x: x,
             y: y,
             size: 100,
@@ -233,7 +234,7 @@ Latest Version: ${latestVersion}`,
                         webP: "assets/imgs/projectIcons/frontier.webp",
                         upscale: {
                             width: 150,
-                            height: 150,
+                            height: 131,
                             antialias: false
                         }
                     },
@@ -241,6 +242,21 @@ Latest Version: ${latestVersion}`,
                         id: "ProjectIcon.Rummikub",
                         src: "assets/imgs/projectIcons/rummikub.png",
                         src: "assets/imgs/projectIcons/rummikub.webp"
+                    },
+                    {
+                        id: "ProjectIcon.Itch",
+                        src: "assets/imgs/projectIcons/itch.png",
+                        src: "assets/imgs/projectIcons/itch.webp"
+                    },
+                    {
+                        id: "ProjectIcon.BagelUI",
+                        src: "assets/imgs/projectIcons/bagelUI.png",
+                        src: "assets/imgs/projectIcons/bagelUI.webp",
+                        upscale: {
+                            width: 150,
+                            height: 150,
+                            antialias: false
+                        }
                     }
                 ]
             },
@@ -252,11 +268,15 @@ Latest Version: ${latestVersion}`,
                         githubURLs: {
                             BagelJS: "https://github.com/hedgehog125/Bagel.js",
                             Frontier: "https://github.com/hedgehog125/Frontier-Fan-Made-Game",
-                            Rummikub: "https://github.com/hedgehog125/Rummikub-clone"
+                            Rummikub: "https://github.com/hedgehog125/Rummikub-clone",
+                            Itch: "https://github.com/hedgehog125/Itch",
+                            BagelUI: "https://github.com/hedgehog125/Bagel.js-UI"
                         },
                         pagesURLs: {
                             Frontier: "https://hedgehog125.github.io/Frontier-Fan-Made-Game/",
-                            Rummikub: "https://hedgehog125.github.io/Rummikub-clone"
+                            Rummikub: "https://hedgehog125.github.io/Rummikub-clone",
+                            Itch: "https://hedgehog125.github.io/Itch",
+                            BagelUI: "https://hedgehog125.github.io/Bagel.js-UI/"
                         }
                     },
                     submenu: "main",
@@ -308,9 +328,11 @@ Anyway, scroll down for my semi recent projects...`,
                                     height: 3
                                 },
 
-                                projectButton("BagelJS", "yellow", 200, 450 + 225, "Bagel.js"),
-                                projectButton("Frontier", "black", 400, 450 + 225, "Frontier"),
-                                projectButton("Rummikub", "white", 600, 450 + 225, "Rummikub")
+                                projectButton("BagelJS", "yellow", 200, 450 + 150, "Bagel.js"),
+                                projectButton("Frontier", "black", 400, 450 + 150, "Frontier"),
+                                projectButton("Rummikub", "white", 600, 450 + 150, "Rummikub"),
+                                projectButton("Itch", "#DEDEDE", 300, 450 + 300, "Itch"),
+                                projectButton("BagelUI", "yellow", 500, 450 + 300, "Bagel.js UI", 0.7)
                             ],
                             scroll: {
                                 y: {
@@ -340,7 +362,7 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                                 507),
 
                                 ...projectBar("BagelJS"),
-                                backButton(200, 450 + 225, "yellow")
+                                backButton(200, 450 + 150, "yellow")
                             ],
                             scroll: {
                                 y: {
@@ -370,7 +392,7 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                                 272),
 
                                 ...projectBar("Frontier", true),
-                                backButton(400, 450 + 225, "black")
+                                backButton(400, 450 + 150, "black")
                             ],
                             scroll: {},
                             ...hoverText(true)
@@ -399,7 +421,7 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                                 348),
 
                                 ...projectBar("Rummikub", true),
-                                backButton(600, 450 + 225, "white")
+                                backButton(600, 450 + 150, "white")
                             ],
                             scroll: {
                                 y: {
@@ -411,6 +433,67 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                         },
                         ...transitionSubmenu("Rummikub", "GitHub"),
                         ...transitionSubmenu("Rummikub", "Pages"),
+
+                        "Project.Itch": {
+                            elements: [
+                                background(),
+                                title("Itch"),
+                                basicInfo(
+                                    "25/6/17 (the last version before development stopped)",
+                                    "Cancelled",
+                                    "N/A"
+                                ),
+                                sideText(`Itch was easilly my biggest cancelled project. If I had gone on to finish it, it would have about 7500 lines of code.`, 0, 5),
+                                paragraph(
+`I previously mentioned on Scratch (although I apparently removed a lot of it) why I cancelled it but here's the rundown:`,
+                                181),
+                                paragraph(
+` • I was making it and realised using WebGL would make it much faster
+ • WebGL is complicated so I looked into frameworks
+ • I found Phaser and started making Frontier using it so I understood it
+ • I realised making games is much easier and more fun with a framework
+ • I had no reason to make Itch as Phaser was good enough for me (I guess that didn't completely turn out since I made JAMESCRIPT and Bagel.js)
+`,
+                                232, 25),
+
+                                ...projectBar("Itch", 2),
+                                backButton(300, 450 + 300, "#DEDEDE")
+                            ],
+                            scroll: {
+                                y: {
+                                    min: 0,
+                                    max: 35
+                                }
+                            },
+                            ...hoverText(true)
+                        },
+                        ...transitionSubmenu("Itch", "GitHub"),
+                        ...transitionSubmenu("Itch", "Pages"),
+
+                        "Project.BagelUI": {
+                            elements: [
+                                background(),
+                                title("Bagel.js UI"),
+                                basicInfo(
+                                    "N/A",
+                                    "In development",
+                                    "N/A"
+                                ),
+                                sideText(`Bagel.js UI is a customisable Bagel.js plugin for creating user interfaces. It features buttons, text and images but can also be expanded by loading external files (not implemented yet).`, -98, -5),
+                                paragraph(
+`This website was also made using it.`,
+                                171),
+                                paragraph(
+`(This page will likely be updated to be more detailed once it's done and I can reflect on it)`,
+                                221),
+
+                                ...projectBar("BagelUI", 2),
+                                backButton(500, 450 + 300, "yellow")
+                            ],
+                            ...hoverText(true)
+                        },
+                        ...transitionSubmenu("BagelUI", "GitHub"),
+                        ...transitionSubmenu("BagelUI", "Pages")
                     },
                     stateToActivate: "menu"
                 }
