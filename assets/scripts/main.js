@@ -7,8 +7,25 @@ Links
 */
 
 const game = (_ => {
-    const externalHandler = (menuSprite, animationVars) => {
+    const urls = {
+        GitHub: {
+            BagelJS: "https://github.com/hedgehog125/Bagel.js",
+            Frontier: "https://github.com/hedgehog125/Frontier-Fan-Made-Game",
+            Rummikub: "https://github.com/hedgehog125/Rummikub-clone",
+            Itch: "https://github.com/hedgehog125/Itch",
+            BagelUI: "https://github.com/hedgehog125/Bagel.js-UI"
+        },
+        Pages: {
+            Frontier: "https://hedgehog125.github.io/Frontier-Fan-Made-Game/",
+            Rummikub: "https://hedgehog125.github.io/Rummikub-clone",
+            Itch: "https://hedgehog125.github.io/Itch",
+            BagelUI: "https://hedgehog125.github.io/Bagel.js-UI/"
+        }
+    };
+
+    const externalHandler = (menuSprite, animationVars, url) => {
         if (game.vars.loadingExternalPage) {
+            console.log(document.readyState);
             if (game.vars.externalPageLoaded) {
                 let menuSprite = game.get.sprite("Menu");
                 if (new Date() - game.vars.backforwardRecoverTick > 1000 && (! menuSprite.animationActive)) {
@@ -29,6 +46,10 @@ const game = (_ => {
                         let submenu = menuSprite.submenu.split(".");
                         submenu.splice(submenu.length - 1, 1);
                         submenu = submenu.join(".");
+                        if (submenu == "") { // Homepage
+                            submenu = "main";
+                        }
+
                         menuSprite.animateSubmenuChange(submenu, {
                             type: "triangleScroll",
                             direction: "left"
@@ -40,17 +61,8 @@ const game = (_ => {
         else {
             if (game.vars.externalPageDelay == 0) {
                 // It'll take a second or two to load anyway so start loading while the animation is active
-                let projectID = menuSprite.submenu.split(".");
-                let type = projectID[projectID.length - 1];
-                projectID.splice(0, 1);
-                projectID.splice(projectID.length - 1, 1);
-                projectID = projectID.join(".");
-                if (type == "GitHub") {
-                    location.href = menuSprite.vars.githubURLs[projectID];
-                }
-                else {
-                    location.href = menuSprite.vars.pagesURLs[projectID];
-                }
+                location.href = url;
+
                 game.vars.loadingExternalPage = true;
             }
             else {
@@ -63,8 +75,8 @@ const game = (_ => {
             };
         }
     };
-    const transitionSubmenu = (name, type) => {
-        let submenuID = "Project." + name + "." + type;
+
+    const transitionSubmenu = (submenuID, url) => {
         let ob = {};
         ob[submenuID] = {
             elements: [
@@ -75,11 +87,20 @@ const game = (_ => {
                     height: 450
                 }
             ],
-            animationMain: externalHandler,
+            animationMain: (url => ((menuSprite, animationVars) => {
+                externalHandler(menuSprite, animationVars, url);
+            }))(url),
             main: externalHandler
         };
         return ob;
     };
+    const projectTransitionSubmenu = (name, type, urls) => {
+        return transitionSubmenu(
+            "Project." + name + "." + type,
+            urls[type][name]
+        );
+    };
+
     const projectBar = (submenu, pages) => {
         let elements = [{
             type: "image",
@@ -302,19 +323,7 @@ Latest Version: ${latestVersion}`,
                     id: "Menu",
                     type: "GUI",
                     vars: {
-                        githubURLs: {
-                            BagelJS: "https://github.com/hedgehog125/Bagel.js",
-                            Frontier: "https://github.com/hedgehog125/Frontier-Fan-Made-Game",
-                            Rummikub: "https://github.com/hedgehog125/Rummikub-clone",
-                            Itch: "https://github.com/hedgehog125/Itch",
-                            BagelUI: "https://github.com/hedgehog125/Bagel.js-UI"
-                        },
-                        pagesURLs: {
-                            Frontier: "https://hedgehog125.github.io/Frontier-Fan-Made-Game/",
-                            Rummikub: "https://hedgehog125.github.io/Rummikub-clone",
-                            Itch: "https://hedgehog125.github.io/Itch",
-                            BagelUI: "https://hedgehog125.github.io/Bagel.js-UI/"
-                        }
+                        urls: urls
                     },
                     submenu: "main",
                     submenus: {
@@ -340,7 +349,7 @@ Latest Version: ${latestVersion}`,
                                     color: "#EFEFEF",
                                     x: 525,
                                     y: 252,
-                                    text: `Hi, I'm Nico Clack and I'm mostly programming in JavaScript at the moment. My main 3 hobbies are programming, watching videos and playing videogames but I'm working on expanding my interests by listening to audio books, cooking and swimming more.
+                                    text: `Hi, I'm Nico Clack and I'm mostly programming in JavaScript at the moment. My other hobbies include swimming, playing videogames, discussing politics and cooking (including inventing the occassional recipe).
 
 I've been programming since I was about 8 and a half so I've produced a fair bit over the years (I'm 17). My older stuff is under hedgehog125 and earlier nicoclack on Scratch.
 
@@ -364,6 +373,21 @@ Anyway, scroll down for my semi recent projects...`,
                                     y: 450 + 42,
                                     height: 3
                                 },
+                                {
+                                    type: "button",
+                                    icon: "GitHub",
+                                    color: "black",
+                                    onHover: "See my GitHub",
+                                    onClick: {
+                                        submenu: "GitHub",
+                                        animation: {
+                                            type: "triangleScroll"
+                                        }
+                                    },
+                                    size: 50,
+                                    x: 750,
+                                    y: 400
+                                },
 
                                 projectButton("BagelJS", "yellow", 200, 450 + 150, "Bagel.js"),
                                 projectButton("Frontier", "black", 400, 450 + 150, "Frontier"),
@@ -379,6 +403,8 @@ Anyway, scroll down for my semi recent projects...`,
                             },
                             ...hoverText()
                         },
+                        ...transitionSubmenu("GitHub", "https://github.com/hedgehog125"),
+
                         "Project.BagelJS": {
                             elements: [
                                 background(),
@@ -409,7 +435,7 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                             },
                             ...hoverText(true)
                         },
-                        ...transitionSubmenu("BagelJS", "GitHub"),
+                        ...projectTransitionSubmenu("BagelJS", "GitHub", urls),
 
                         "Project.Frontier": {
                             elements: [
@@ -434,8 +460,8 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                             scroll: {},
                             ...hoverText(true)
                         },
-                        ...transitionSubmenu("Frontier", "GitHub"),
-                        ...transitionSubmenu("Frontier", "Pages"),
+                        ...projectTransitionSubmenu("Frontier", "GitHub", urls),
+                        ...projectTransitionSubmenu("Frontier", "Pages", urls),
 
                         "Project.Rummikub": {
                             elements: [
@@ -451,7 +477,7 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
 `My recreation is pretty accurate except it uses the joker rules we use in my immediate family. There's also no AI but the physical board game doesn't so...`,
                                 196),
                                 paragraph(
-`The game technically uses my very fist games framework: GameLib. However, other than using some of the methods in it, it mustly just renders straight to the 2D canvas.`,
+`The game technically uses my very first games framework: GameLib. However, other than using some of the methods in it, it mostly just renders straight to the 2D canvas.`,
                                 272),
                                 paragraph(
 `Overall, the code is pretty bad. But it was my first big JavaScript project so I can't bash it too much. It also used my first games framework which doesn't help.`,
@@ -468,8 +494,8 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                             },
                             ...hoverText(true)
                         },
-                        ...transitionSubmenu("Rummikub", "GitHub"),
-                        ...transitionSubmenu("Rummikub", "Pages"),
+                        ...projectTransitionSubmenu("Rummikub", "GitHub", urls),
+                        ...projectTransitionSubmenu("Rummikub", "Pages", urls),
 
                         "Project.Itch": {
                             elements: [
@@ -504,8 +530,8 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                             },
                             ...hoverText(true)
                         },
-                        ...transitionSubmenu("Itch", "GitHub"),
-                        ...transitionSubmenu("Itch", "Pages"),
+                        ...projectTransitionSubmenu("Itch", "GitHub", urls),
+                        ...projectTransitionSubmenu("Itch", "Pages", urls),
 
                         "Project.BagelUI": {
                             elements: [
@@ -529,8 +555,8 @@ Looking back, I'm conflicted about Bagel.js. It's been an interesting learning o
                             ],
                             ...hoverText(true)
                         },
-                        ...transitionSubmenu("BagelUI", "GitHub"),
-                        ...transitionSubmenu("BagelUI", "Pages")
+                        ...projectTransitionSubmenu("BagelUI", "GitHub", urls),
+                        ...projectTransitionSubmenu("BagelUI", "Pages", urls)
                     },
                     stateToActivate: "menu"
                 }
